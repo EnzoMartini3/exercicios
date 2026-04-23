@@ -1,22 +1,28 @@
+#include <stdio.h>
 
-
-public static String cesar(String s){ //metodo iterativo que recebe a string, cria uma vazia e percorre ela toda. a cada iteracao, pegamos o char da posicao, pulamos 3 letras/simbolos, convertemos para char e depois juntamos a uma nova string.
-    String nova = "";
-    for(int i=0; i < s.length(); i++){
-        char c = s.charAt(i); 
-        char z = (char)(c + 3);
-        
-        nova = nova + z;
+// Metodo recursivo que recebe a string e o indice. A cada iteracao (chamada), pegamos o char da posicao,
+void cesar(char s[], int i){
+    if(s[i] == '\0'){
+        printf("\n");
+    } else {
+        char c = s[i];
+        printf("%c", (char)(c + 3));
+        cesar(s, i + 1); // Chamada recursiva para a proxima posicao
     }
-    return nova;
 }
 
-public static void main(String[] args){
-    Scanner sc = new Scanner(System.in);
-    String entrada = sc.nextLine();
-    while(!(entrada.equals("FIM"))){
-        System.out.println(cesar(entrada));
-        entrada = sc.nextLine();        
+int isFim(char s[]){
+    // Como o scanf %[^\n] ja limpa a entrada, s[3] sera sempre \0 no caso do "FIM"
+    return (s[0] == 'F' && s[1] == 'I' && s[2] == 'M' && s[3] == '\0');
+}
+
+int main(){
+    char vet[1000];
+    
+    // O espaco antes de %[^\n] come o \n que sobra no buffer
+    while(scanf(" %[^\n]", vet) == 1 && !isFim(vet)){
+        cesar(vet, 0); // Chama a funcao recursiva comecando do indice 0
     }
-    sc.close();
+    
+    return 0;
 }

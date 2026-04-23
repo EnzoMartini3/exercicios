@@ -1,10 +1,13 @@
+import java.util.Scanner;
 class Is3{
 
     public static boolean isVogal(String s){
         boolean fato = true;
         int n = s.length();
         for(int i=0; i<n; i++){ //tem alguma não-vogal? falso nele.
-            if(s.charAt(i) != 'a' || 'e' || 'i' || 'o' || 'u' || 'A' || 'E' || 'I' || 'O' || 'U'){
+            char c = s.charAt(i);
+            if (!(c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u' || 
+              c == 'A' || c == 'E' || c == 'I' || c == 'O' || c == 'U')) {
                 fato = false;
             }
         }
@@ -15,8 +18,10 @@ class Is3{
         boolean fato = true;
         int n = s.length();
         for(int i=0; i<n; i++){ //tem alguma vogal? falso nele.
-            if(s.charAt(i) == 'a' || 'e' || 'i' || 'o' || 'u' || 'A' || 'E' || 'I' || 'O' || 'U'){
-                fato = false;
+            char c = s.charAt(i);
+            if ((c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u' || 
+             c == 'A' || c == 'E' || c == 'I' || c == 'O' || c == 'U')) {
+                            fato = false;
             }
         }
         return fato;
@@ -43,17 +48,28 @@ class Is3{
     public static void main(String[] args){ //para cada entrada, testamos todos os métodos e concatenamos as respostas em uma segunda string para cada resultado verdadeiro
         Scanner sc = new Scanner(System.in);
         String entrada = sc.nextLine();
-        String saida = "";
         while(!(entrada.equals("FIM"))){
-            if(isVogal(entrada)){
-                saida = saida + "X1 ";
-            }else if(isConsoante(entrada)){
-                saida = saida + "X2 ";
-            }else if(isInt(entrada)){
-                saida = saida + "X3 ";
-            }else if(isReal(entrada)){
-                saida = saida + "X4";
-            }
+            String saida = "";
+                if (isVogal(entrada)) {
+                    saida += "SIM ";
+                } else {
+                    saida += "NAO ";
+                }
+                if (isConsoante(entrada)) {
+                    saida += "SIM ";
+                } else {
+                    saida += "NAO ";
+                }
+                if (isInt(entrada)) {
+                    saida += "SIM ";
+                } else {
+                    saida += "NAO ";
+                }
+                if (isReal(entrada)) {
+                    saida += "SIM";
+                } else {
+                    saida += "NAO";
+                }
             System.out.println(saida);
             entrada = sc.nextLine();
         }

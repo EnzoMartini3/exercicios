@@ -31,9 +31,10 @@ int anagrama(char s1[], char s2[]){
         for(int j=0; j<tam2; j++){ //pesquisar no segundo vetor
             if(s1[i] == s2[j]){
                 encontrado = 1;
+                s2[j] = '*'; //impede que a letra repita
                 break; //encontramos, tudo certo
             }
-        }
+        } //com o asterisco nao temos problemas de AAA vs ABC
         if(encontrado == 0){
             return 0;
         }
@@ -45,14 +46,16 @@ int anagrama(char s1[], char s2[]){
 int main(){
     char s1[200];
     char s2[200];
-    scanf("%s - %s", s1, s2);
-    while(!(s1[0] == 'F' && s1[1] == 'I' && s1[2] == 'M')){
-        if(anagrama(s1, s2) == 1){
-            printf("SIM\n");
-        }else{
-            printf("NÃO\n");
+    while (scanf("%s", s1) != EOF) {
+        if (s1[0] == 'F' && s1[1] == 'I' && s1[2] == 'M' && s1[3] == '\0') {
+            break;       //precisamos ler a primeira e segunda palavra separadas
         }
-        scanf("%s - %s", s1, s2);
+        scanf("%s", s2); //le a segunda palavra do par
+        if (anagrama(s1, s2)) {
+            printf("SIM\n");
+        } else {
+            printf("NAO\n");
+        }
     }
     return 0;
 }

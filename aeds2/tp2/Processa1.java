@@ -14,7 +14,7 @@ class Hora{ //hora tem 2 atributos, hora e minuto. com o parseHora, recebemos um
 		int hora;
 		int minuto;
 		Scanner scanner = new Scanner(s);
-		scanner.useDelimiter(":"); //"10:30"
+		scanner.useDelimiter("[:|-]"); //para que o scanner possa ler 10:30 e 10-30 
 
 		hora = scanner.nextInt();
 		minuto = scanner.nextInt();
@@ -24,7 +24,7 @@ class Hora{ //hora tem 2 atributos, hora e minuto. com o parseHora, recebemos um
 	}
 
 	public String formatar(){
-		return String.format("%02d:%02d", this.hora, this.minuto); // "HH:mm"
+		return String.format("%02d:%02d", this.hora, this.minuto);
 	}
 }
 
@@ -54,8 +54,8 @@ class Data{ //extremamente similar a classe acima, mas agora tambem temos o form
 		return new Data(ano, mes, dia);
 	}
 
-	public static String formatar(){
-		return String.format("%02d-%02d-%02d", this.ano, this.mes, this.dia);
+	public String formatar(){
+		return String.format("%02d/%02d/%04d", this.dia, this.mes, this.ano);
 	}
 }
 
@@ -67,17 +67,17 @@ class Restaurante{ //uma classe com varios parametros/atributos que extrai da st
 	private float avaliacao;
 	private String[] tiposCozinha;
 	private int faixaPreco;
-	private Hora horario;
+	private String horario;
 	private Data dataAbertura;
 	private boolean aberto;
 
-	public Restaurante(int id, String nome, String cidade, int capacidade, float avaliacao, /*tiposCozinha*/, int faixaPreco, Hora horario, Data dataAbertura, boolean aberto){
+	public Restaurante(int id, String nome, String cidade, int capacidade, float avaliacao, String[] tiposCozinha, int faixaPreco, String horario, Data dataAbertura, boolean aberto){
 		this.id = id;
 		this.nome = nome;
 		this.cidade = cidade;
 		this.capacidade = capacidade;
 		this.avaliacao = avaliacao;
-		//this.tiposCozinha = tiposCozinha
+		this.tiposCozinha = tiposCozinha;
 		this.faixaPreco = faixaPreco;
 		this.horario = horario;
 		this.dataAbertura = dataAbertura;
@@ -93,32 +93,76 @@ class Restaurante{ //uma classe com varios parametros/atributos que extrai da st
 		String cidade = scanner.next();
 		int capacidade = scanner.nextInt();
 		float avaliacao = scanner.nextFloat();
-		//tiposcuzinho
+		String[] tiposCozinha = parseCozinha(scanner.next());
 		int faixaPreco = parsePreco(scanner.next());
-		Hora horario = Hora.parseHora(scanner.next());
+		String horario = scanner.next();
 		Data dataAbertura = Data.parseData(scanner.next());
 		boolean aberto = parseBool(scanner.next());
 
 		scanner.close();
-		return new Restaurante(id, nome, cidade, capacidade, avaliacao, /*tiposCozinha*/, faixaPreco, horario, dataAbertura, aberto);
+		return new Restaurante(id, nome, cidade, capacidade, avaliacao, tiposCozinha, faixaPreco, horario, dataAbertura, aberto);
+	}
+
+	public int getId(){
+		return this.id;
 	}
 
 	public static boolean parseBool(String s){
 		return s.equals("true");
 	}
 
-	public static int parsePreco(String s){
-		int i=0;
-		int contador=0;
-		while(s.charAt(contador)=='$'){
+	public static String[] parseCozinha(String s){
+		int i = 0;
+		String[] array = new String[200];
+		Scanner scanner = new Scanner(s);
+		scanner.useDelimiter(";");
+		while(scanner.hasNext()){
+			array[i] = scanner.next();
 			i++;
-			contador++;
 		}
-		return i;
+		scanner.close();
+		return array;
 	}
 
-	public static String formatar(){
-		return String.format("[%d ## %s ## %s]", this.id, this.nome, this.horaAbertura.formatar());
+	public static int parsePreco(String s){
+		int contador=0;
+		for (int i = 0; i < s.length(); i++) {
+			if (s.charAt(i) == '$') {
+				contador++;
+			}
+		}
+		return contador;
+	}
+
+	private String formatarCozinhas() { //exibe todo o array
+		String res = "[";
+		for (int i = 0; i < tiposCozinha.length; i++) {
+			if (tiposCozinha[i] != null) {
+				if (i > 0) res += ",";
+				res += tiposCozinha[i];
+			}
+		}
+		return res + "]";
+	}
+
+	private String formatarPreco() { //transforma o numero novamente em $
+		String res = "";
+		for (int i = 0; i < faixaPreco; i++) res += "$";
+		return res;
+	}
+
+	public String formatar() {
+		return String.format("[%d ## %s ## %s ## %d ## %.1f ## %s ## %s ## %s ## %s ## %b]",  //%.1f remove os zeros excessivos da avaliação
+			this.id, 
+			this.nome, 
+			this.cidade, 
+			this.capacidade, 
+			this.avaliacao, 
+			this.formatarCozinhas(), 
+			this.formatarPreco(), 
+			this.horario,
+			this.dataAbertura.formatar(), 
+			this.aberto);
 	}
 }
 
@@ -132,21 +176,51 @@ class ColecaoRestaurantes{
 	}
 
 	public static ColecaoRestaurantes lerCsv(){
-		Scanner arquivo = new Scanner(new File("/tmp/restaurantes.csv"));
-		String cabecalho = arquivo.nextLine();
 		int tam=0;
 		Restaurante[] rests = new Restaurante[5000];
-		while(arquivo.hasNextLine()){
-			String linha = arquivo.nextLine();
-			Restaurante novo = Restaurante.parseRestaurante(linha) //nao precisa de new pq ja tem dentro de parseRest.
-			rests[tam] = novo;
-			tam++;
-		}
+		try {
+			Scanner arquivo = new Scanner(new File("/tmp/restaurantes.csv"));
+			String cabecalho = arquivo.nextLine();
+			while(arquivo.hasNextLine()){
+				String linha = arquivo.nextLine();
+				Restaurante novo = Restaurante.parseRestaurante(linha); //nao precisa de new pq ja tem dentro de parseRest.
+				rests[tam] = novo;
+				tam++;
+			}		
+		} catch (Exception e) {
+            e.printStackTrace();
+        }
 		return new ColecaoRestaurantes(tam, rests);
+	}
+
+	public Restaurante getRestauranteById(int id){ //buscamos o restaurante que queremos baseado no id, passando por todo o array restaurantes até encontrarmos um id correspondente. em seguida, guardamos a posicao dele em z e retornamos o restaurante na posicao.
+		int z=0;
+		for(int i=0; i<tamanho; i++){
+			if(restaurantes[i].getId() == id){
+				z = i;
+			}
+		}
+		if(z==0){
+			return null;
+		}else{
+			return restaurantes[z];
+		}
 	}
 }
 
+
 class Processa1{
-	public static void main(String[] args){}
-	ColecaoRestaurantes cr = lerCsv();
+	public static void main(String[] args){
+		ColecaoRestaurantes cr = ColecaoRestaurantes.lerCsv();
+		Scanner sc = new Scanner(System.in);
+		int entrada = sc.nextInt();
+		while(entrada > 0){
+			Restaurante r = cr.getRestauranteById(entrada);
+			if(r!=null){
+        		System.out.println(r.formatar());
+    		}
+			entrada = sc.nextInt();
+		}
+		sc.close();
+	}
 }

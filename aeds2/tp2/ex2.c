@@ -174,22 +174,15 @@ Colecao_Restaurantes* ler_csv() {
 }
 
 void formatar_restaurante(Restaurante* restaurante, char* restaurantes) {
-
     char char_preco [5];
     int contador;
-    for (contador = 0; contador < restaurante-> faixa_preco; contador++){
-        
+    for (contador = 0; contador < restaurante-> faixa_preco; contador++){        
         char_preco[contador] = '$';
-
     }
-
     char tipo1 [50];
     char tipo2 [50];
-    
     sscanf(restaurante->tiposCozinha[0], "%99[^;];%99s", tipo1, tipo2);
-
     char_preco[contador] = '\0';
-
     char* status_string;
 
     if (strcmp(restaurante->aberto, "true") == 0) {
@@ -206,54 +199,35 @@ void formatar_restaurante(Restaurante* restaurante, char* restaurantes) {
 
 
 void imprimir_restaurante(Restaurante* restaurante) {
-
     char temp[300];
-
     formatar_restaurante(restaurante, temp);
     printf("%s\n", temp);
 
 }  
 
 void Exercicio_01(Colecao_Restaurantes* colecao){
-
     int busca_ID;
     scanf ("%d", &busca_ID);
-
     while (busca_ID != -1){
-
         imprimir_restaurante (colecao->restaurantes[busca_ID - 1]);
-
     scanf("%d", &busca_ID);
-
-
     }
-
-
 }
 
 
 int main() {
-
     Colecao_Restaurantes* colecao = ler_csv();
-
-    
     Exercicio_01(colecao);
-
-
 	//Free
     for (int i = 0; i < (colecao->tamanho); i++) {
-
         free(colecao->restaurantes[i]->nome);
         free(colecao->restaurantes[i]->cidade);
-
         for (int j = 0; j < (colecao->restaurantes[i]->nTiposCozinha); j++) {
             free(colecao->restaurantes[i]->tiposCozinha[j]);
         }
-
         free(colecao->restaurantes[i]->tiposCozinha);
         free(colecao->restaurantes[i]);
     }
-
     free(colecao->restaurantes);
     free(colecao);
 

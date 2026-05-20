@@ -6,14 +6,12 @@
 typedef struct {
 	int hora;
 	int minuto;
-
 } Hora;
 
 typedef struct {
     int dia;
     int mes;
     int ano;
-
 } Data;
 
 typedef struct {
@@ -22,35 +20,25 @@ typedef struct {
     char* cidade;
     int capacidade;
     double avaliacao;
-
     int nTiposCozinha;
     char** tiposCozinha;
-
     int faixa_preco;
-
     Hora horario_abertura;
     Hora horario_fechamento;
-
     Data data_abertura;
-
     char* aberto;
-
 } Restaurante;
 
 typedef struct {
-
     int tamanho;
     Restaurante** restaurantes;
-
 } Colecao_Restaurantes;
 
 
 Data parse_data(char* data) {
-
     Data d_ata;
     sscanf(data, "%d-%d-%d", &d_ata.ano, &d_ata.mes, &d_ata.dia);
     return d_ata;
-
 }
 
 Hora parse_hora(char* hora_str) {
@@ -58,7 +46,6 @@ Hora parse_hora(char* hora_str) {
     Hora h_ora;
     sscanf(hora_str, "%d:%d", &h_ora.hora, &h_ora.minuto);
     return h_ora;
-	
 }
 
 void formatar_hora(Hora* hora, char* buffer) {
@@ -154,7 +141,6 @@ Restaurante* parse_restaurante(char* str) {
     }
     restaurante->faixa_preco = conta_cifrao;
    
-
     return restaurante;
 }
 

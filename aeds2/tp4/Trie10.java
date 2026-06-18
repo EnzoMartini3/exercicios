@@ -1,0 +1,208 @@
+import java.util.*;
+import java.io.*;
+
+class NoTrie {
+    public NoTrie[] filhos;
+    public Restaurante elemento;
+    public boolean folha;
+
+    public NoTrie() {
+        this.filhos = new NoTrie[256];
+        this.elemento = null;
+        this.folha = false;
+        for (int i = 0; i < 256; i++) {
+            this.filhos[i] = null;
+        }
+    }
+}
+
+class ArvoreTrie {
+    private NoTrie raiz;
+
+    public ArvoreTrie() {
+        raiz = new NoTrie();
+    }
+
+    public void inserir(Restaurante r) {
+        NoTrie atual = raiz;
+        String nome = r.getNome();
+        for (int i = 0; i < nome.length(); i++) {
+            char ch = nome.charAt(i);
+            int index = (int) ch;
+            if (atual.filhos[index] == null) {
+                atual.filhos[index] = new NoTrie();
+            }
+            atual = atual.filhos[index];
+        }
+        atual.folha = true;
+        atual.elemento = r;
+    }
+
+    public boolean pesquisar(String nome, long[] compGlobal) {
+        NoTrie atual = raiz;
+        for (int i = 0; i < nome.length(); i++) {
+            char ch = nome.charAt(i);
+            System.out.print(ch + " ");
+            compGlobal[0]++;
+            int index = (int) ch;
+            if (atual.filhos[index] == null) {
+                return false;
+            }
+            atual = atual.filhos[index];
+        }
+        compGlobal[0]++;
+        if (atual != null && atual.folha) {
+            System.out.print("SIM " + atual.elemento.formatar() + "\n");
+            return true;
+        }
+        return false;
+    }
+}
+
+class Hora {
+    private int hora, minuto;
+    public Hora(int hora, int minuto) { this.hora = hora; this.minuto = minuto; }
+    public static Hora parseHora(String s) {
+        Scanner scanner = new Scanner(s); scanner.useDelimiter("[:|-]");
+        int h = scanner.nextInt(); int m = scanner.nextInt(); scanner.close();
+        return new Hora(h, m);
+    }
+    public String formatar() { return String.format("%02d:%02d", this.hora, this.minuto); }
+}
+
+class Data {
+    private int ano, mes, dia;
+    public Data(int ano, int mes, int dia) { this.ano = ano; this.mes = mes; this.dia = dia; }
+    public static Data parseData(String s) {
+        Scanner scanner = new Scanner(s); scanner.useDelimiter("-");
+        int a = scanner.nextInt(); int m = scanner.nextInt(); int d = scanner.nextInt(); scanner.close();
+        return new Data(a, m, d);
+    }
+    public String formatar() { return String.format("%02d/%02d/%04d", this.dia, this.mes, this.ano); }
+}
+
+class Restaurante {
+    private int id;
+    private String nome, cidade;
+    private int capacidade;
+    private float avaliacao;
+    private String[] tiposCozinha;
+    private int faixaPreco;
+    private String horario;
+    private Data dataAbertura;
+    private boolean aberto;
+
+    public Restaurante(int id, String nome, String cidade, int capacidade, float avaliacao, String[] tiposCozinha, int faixaPreco, String horario, Data dataAbertura, boolean aberto) {
+        this.id = id; this.nome = nome; this.cidade = cidade; this.capacidade = capacidade; this.avaliacao = avaliacao;
+        this.tiposCozinha = tiposCozinha; this.faixaPreco = faixaPreco; this.horario = horario; this.dataAbertura = dataAbertura; this.aberto = aberto;
+    }
+
+    public static Restaurante parseRestaurante(String s) {
+        Scanner scanner = new Scanner(s); scanner.useDelimiter(",");
+        int id = scanner.nextInt(); String nome = scanner.next(); String cidade = scanner.next();
+        int capacidade = scanner.nextInt(); float avaliacao = scanner.nextFloat();
+        String[] tiposCozinha = parseCozinha(scanner.next()); int faixaPreco = parsePreco(scanner.next());
+        String horario = scanner.next(); Data dataAbertura = Data.parseData(scanner.next());
+        boolean aberto = s.contains("true"); scanner.close();
+        return new Restaurante(id, nome, cidade, capacidade, avaliacao, tiposCozinha, faixaPreco, horario, dataAbertura, aberto);
+    }
+
+    public int getId() { return this.id; }
+    public String getNome() { return this.nome; }
+
+    public static String[] parseCozinha(String s) {
+        int i = 0; String[] array = new String[200];
+        Scanner scanner = new Scanner(s); scanner.useDelimiter(";");
+        while (scanner.hasNext()) { array[i++] = scanner.next(); }
+        scanner.close(); return array;
+    }
+
+    public static int parsePreco(String s) {
+        int c = 0; for (int i = 0; i < s.length(); i++) { if (s.charAt(i) == '$') c++; }
+        return c;
+    }
+
+    private String formatarCozinhas() {
+        String res = "[";
+        for (int i = 0; i < tiposCozinha.length; i++) {
+            if (tiposCozinha[i] != null) {
+                if (i > 0) res += ",";
+                res += tiposCozinha[i];
+            }
+        }
+        return res + "]";
+    }
+
+    public String formatar() {
+        return String.format("[%d ## %s ## %s ## %d ## %.1f ## %s ## %s ## %s ## %s ## %b]",
+            this.id, this.nome, this.cidade, this.capacidade, this.avaliacao, 
+            this.formatarCozinhas(), "$".repeat(faixaPreco), this.horario, this.dataAbertura.formatar(), this.aberto);
+    }
+}
+
+class ColecaoRestaurantes {
+    private int tamanho;
+    private Restaurante[] restaurantes;
+
+    public ColecaoRestaurantes(int tamanho, Restaurante[] restaurantes) {
+        this.tamanho = tamanho; this.restaurantes = restaurantes;
+    }
+
+    public static ColecaoRestaurantes lerCsv() {
+        int tam = 0; Restaurante[] rests = new Restaurante[5000];
+        try {
+            Scanner arquivo = new Scanner(new File("/tmp/restaurantes.csv"));
+            arquivo.nextLine();
+            while (arquivo.hasNextLine()) {
+                rests[tam++] = Restaurante.parseRestaurante(arquivo.nextLine());
+            }
+            arquivo.close();
+        } catch (Exception e) {}
+        return new ColecaoRestaurantes(tam, rests);
+    }
+
+    public Restaurante getRestauranteById(int id) {
+        for (int i = 0; i < tamanho; i++) { if (restaurantes[i].getId() == id) return restaurantes[i]; }
+        return null;
+    }
+}
+
+public class Trie10 {
+    public static void main(String[] args) {
+        ColecaoRestaurantes cr = ColecaoRestaurantes.lerCsv();
+        Scanner sc = new Scanner(System.in);
+        ArvoreTrie arvore = new ArvoreTrie();
+        long[] comparacoes = {0};
+
+        while (sc.hasNextInt()) {
+            int id = sc.nextInt();
+            if (id == -1) break;
+            Restaurante r = cr.getRestauranteById(id);
+            if (r != null) {
+                arvore.inserir(r);
+            }
+        }
+
+        if (sc.hasNextLine()) sc.nextLine();
+
+        long inicio = System.nanoTime();
+
+        while (sc.hasNextLine()) {
+            String nome = sc.nextLine().trim();
+            if (nome.equals("FIM") || nome.isEmpty()) break;
+
+            if (!arvore.pesquisar(nome, comparacoes)) {
+                System.out.println("NAO");
+            }
+        }
+
+        long fim = System.nanoTime();
+        double tempo = (fim - inicio) / 1_000_000_000.0;
+
+        try (PrintWriter writer = new PrintWriter(new FileWriter("matrícula_arvore_trie_arvore"))) {
+            writer.printf("850602\t%d\t%.6f\n", comparacoes[0], tempo);
+        } catch (Exception error) {}
+
+        sc.close();
+    }
+}

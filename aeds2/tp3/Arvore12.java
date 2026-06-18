@@ -4,40 +4,18 @@ import java.io.*;
 class No {
     public Restaurante elemento;
     public No esq, dir;
-    public int nivel;
 
     public No(Restaurante elemento) {
         this.elemento = elemento;
         this.esq = this.dir = null;
-        this.nivel = 1; // Inicia com nível 1 (folha)
-    }
-
-    public int pegarMaior(int no1, int no2) {
-        return (no1 > no2) ? no1 : no2;
-    }
-
-    public void setNivel() {
-        this.nivel = 1 + pegarMaior(getNivel(this.dir), getNivel(this.esq));
-    }
-
-    public int getNivel(No i) {
-        if (i == null) {
-            return 0;
-        }
-        return i.nivel;
-    }
-
-    // Retorna o fator de balanceamento do nó atual
-    public int getFator() {
-        return getNivel(this.esq) - getNivel(this.dir);
     }
 }
 
-class ArvoreAVL {
+class ArvoreBinaria {
     private No raiz;
     public int comparacoes;
 
-    public ArvoreAVL() {
+    public ArvoreBinaria() {
         raiz = null;
         comparacoes = 0;
     }
@@ -56,63 +34,8 @@ class ArvoreAVL {
             i.esq = inserir(r, i.esq);
         } else if (comp > 0) {
             i.dir = inserir(r, i.dir);
-        } else {
-            return i; // Elementos duplicados não são reajustados
         }
-
-        // Atualiza o nível do nó atual
-        i.setNivel();
-
-        // Faz o balanceamento do nó se necessário
-        return balancear(i);
-    }
-
-    // Métodos de Rotação e Balanceamento AVL
-    private No balancear(No i) {
-        int fator = i.getFator();
-
-        // Caso Esquerda-Esquerda ou Esquerda-Direita
-        if (fator > 1) {
-            if (i.esq.getFator() < 0) {
-                i.esq = rotacionarEsquerda(i.esq);
-            }
-            return rotacionarDireita(i);
-        }
-        // Caso Direita-Direita ou Direita-Esquerda
-        else if (fator < -1) {
-            if (i.dir.getFator() > 0) {
-                i.dir = rotacionarDireita(i.dir);
-            }
-            return rotacionarEsquerda(i);
-        }
-
         return i;
-    }
-
-    private No rotacionarDireita(No y) {
-        No x = y.esq;
-        No T2 = x.dir;
-
-        x.dir = y;
-        y.esq = T2;
-
-        y.setNivel();
-        x.setNivel();
-
-        return x;
-    }
-
-    private No rotacionarEsquerda(No x) {
-        No y = x.dir;
-        No T2 = y.esq;
-
-        y.esq = x;
-        x.dir = T2;
-
-        x.setNivel();
-        y.setNivel();
-
-        return y;
     }
 
     public void pesquisar(String nome) {
@@ -151,6 +74,7 @@ class ArvoreAVL {
         }
     }
 }
+
 class Hora {
     private int hora;
     private int minuto;
@@ -317,11 +241,11 @@ class ColecaoRestaurantes {
     }
 }
 
-public class Avl1 {
+public class Arvore12 {
     public static void main(String[] args) {
         ColecaoRestaurantes cr = ColecaoRestaurantes.lerCsv();
         Scanner sc = new Scanner(System.in);
-        ArvoreAVL arvore = new ArvoreAVL(); // Instancia a nova classe AVL
+        ArvoreBinaria arvore = new ArvoreBinaria();
 
         while (sc.hasNextInt()) {
             int id = sc.nextInt();
@@ -348,7 +272,7 @@ public class Avl1 {
 
         arvore.caminharEmOrdem();
 
-        try (PrintWriter writer = new PrintWriter(new FileWriter("matrícula_arvore_avl.txt"))) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter("matrícula_arvore_binaria.txt"))) {
             writer.printf("850602\t%d\t%.6f\n", arvore.comparacoes, tempo);
         } catch (Exception error) {}
 
